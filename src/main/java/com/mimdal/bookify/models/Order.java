@@ -1,31 +1,42 @@
 package com.mimdal.bookify.models;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Order {
-    private String username;
+    private String id;
+    private User user;
     private List<Book> books;
-    private String status;
+    private double totalAmount;
 
-    public Order(String username, List<Book> books, String status) {
-        this.username = username;
+    public Order(User user, List<Book> books) {
+        this.id = UUID.randomUUID().toString();
+        this.user = user;
         this.books = books;
-        this.status = status;
+        this.totalAmount = calculateTotalAmount();
     }
 
-    public String getUsername() {
-        return username;
+    public String getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public List<Book> getBooks() {
         return books;
     }
 
-    public String getStatus() {
-        return status;
+    public double getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    private double calculateTotalAmount() {
+        double total = 0;
+        for (Book book : books) {
+            total += book.getPrice();
+        }
+        return total;
     }
 }

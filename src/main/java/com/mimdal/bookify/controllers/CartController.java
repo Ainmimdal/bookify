@@ -1,5 +1,6 @@
 package com.mimdal.bookify.controllers;
 
+import com.mimdal.bookify.Utility.UserUtility;
 import com.mimdal.bookify.data.OrderData;
 import com.mimdal.bookify.models.Book;
 import com.mimdal.bookify.models.Order;
@@ -19,16 +20,18 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.List;
-
 public class CartController {
     private CartView view;
     private ObservableList<Book> cartItems;
 
-    public CartController(CartView view) {
-        this.view = view;
+    public CartController() {
+
         this.cartItems = FXCollections.observableArrayList();
-        view.setCartItems(cartItems);
+        //view.setCartItems(cartItems);
     }
+     public void setView(CartView view){
+        this.view= view;
+     }
 
     public void addToCart(Book book) {
         cartItems.add(book);
@@ -39,7 +42,14 @@ public class CartController {
         // Handle checkout logic
         // For demonstration, just clear the cart and show confirmation
         cartItems.clear();
-        view.setCartItems(cartItems);
-        view.showConfirmation("Your order has been placed successfully!");
+       // view.setCartItems(cartItems);
+        Order order = new Order(UserUtility.currentUser,cartItems);
+        OrderData.addOrder(order);
+        //view.showConfirmation("Your order has been placed successfully!");
+    }
+
+    public CartView getView() {
+        return view;
     }
 }
+

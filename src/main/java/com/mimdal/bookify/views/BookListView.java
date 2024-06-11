@@ -19,62 +19,46 @@ import javafx.scene.paint.Color;
 import java.io.File;
 import java.util.List;
 
+
+
 public class BookListView {
     private VBox view;
     private ObservableList<Book> books;
     private BookListController controller;
 
     public BookListView() {
-        this.books = FXCollections.observableArrayList();
+        books = FXCollections.observableArrayList();
         createView();
     }
 
+    public void setController(BookListController controller) {
+        this.controller = controller;
+    }
+
     private void createView() {
-        view = new VBox();
+        view = new VBox(10);
         view.setAlignment(Pos.CENTER);
-        view.setPadding(new Insets(50));
+        view.setPadding(new Insets(20));
         view.setBackground(new Background(new BackgroundFill(Color.rgb(240, 240, 240), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Label titleLabel = new Label("Book Catalog");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        HBox searchBox = new HBox(10);
-        searchBox.setAlignment(Pos.CENTER);
         TextField searchField = new TextField();
-        searchField.setPromptText("Search by title or author");
-        searchField.setPrefWidth(300);
-        Button searchButton = new Button("Search");
-        searchButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        searchButton.setOnAction(e -> controller.searchBooks(searchField.getText()));
-        searchBox.getChildren().addAll(searchField, searchButton);
+        searchField.setPromptText("Search books...");
+        searchField.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
 
         ComboBox<String> categoryComboBox = new ComboBox<>();
         categoryComboBox.getItems().addAll("All", "Programming", "Fantasy");
         categoryComboBox.setValue("All");
         categoryComboBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
-        categoryComboBox.setOnAction(e -> {
-            String selectedCategory = categoryComboBox.getValue();
-            if ("All".equals(selectedCategory)) {
-                controller.loadBooks();
-            } else {
-                controller.loadBooksByCategory(selectedCategory);
-            }
-        });
 
         ComboBox<String> authorComboBox = new ComboBox<>();
-        authorComboBox.getItems().addAll("All Authors"); // Add authors dynamically
-        authorComboBox.setValue("All Authors");
+        authorComboBox.getItems().addAll("All", "Joshua Bloch", "Robert C. Martin", "J.R.R. Tolkien");
+        authorComboBox.setValue("All");
         authorComboBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
-        authorComboBox.setOnAction(e -> {
-            String selectedAuthor = authorComboBox.getValue();
-            if ("All Authors".equals(selectedAuthor)) {
-                controller.loadBooks();
-            } else {
-                controller.loadBooksByAuthor(selectedAuthor);
-            }
-        });
 
-        HBox filterBox = new HBox(10, categoryComboBox, authorComboBox);
+        HBox filterBox = new HBox(10, searchField, categoryComboBox, authorComboBox);
         filterBox.setAlignment(Pos.CENTER);
 
         ListView<Book> bookListView = new ListView<>(books);
@@ -90,18 +74,19 @@ public class BookListView {
         HBox buttonsBox = new HBox(10, addToCartButton, viewCartButton, viewOrdersButton);
         buttonsBox.setAlignment(Pos.CENTER);
 
-        view.getChildren().addAll(titleLabel, searchBox, filterBox, bookListView, buttonsBox);
+        view.getChildren().addAll(titleLabel, filterBox, bookListView, buttonsBox);
 
         // Button actions
+        searchField.setOnAction(e -> controller.searchBooks(searchField.getText()));
+        categoryComboBox.setOnAction(e -> controller.loadBooksByCategory(categoryComboBox.getValue()));
+        authorComboBox.setOnAction(e -> controller.loadBooksByAuthor(authorComboBox.getValue()));
         addToCartButton.setOnAction(e -> {
             Book selectedBook = bookListView.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
                 controller.addToCart(selectedBook);
             }
         });
-
         viewCartButton.setOnAction(e -> controller.viewCart());
-
         viewOrdersButton.setOnAction(e -> controller.viewOrders());
     }
 
@@ -109,13 +94,8 @@ public class BookListView {
         return view;
     }
 
-    public void setController(BookListController controller) {
-        this.controller = controller;
-    }
-
     public void setBooks(List<Book> books) {
-        ObservableList<Book> observableBooks = FXCollections.observableArrayList(books);
-        this.books.setAll(observableBooks);
+        this.books.setAll(FXCollections.observableArrayList(books));
     }
 
     private static class BookCell extends javafx.scene.control.ListCell<Book> {
@@ -126,29 +106,35 @@ public class BookListView {
                 setText(null);
                 setGraphic(null);
             } else {
-                GridPane gridPane = new GridPane();
-                gridPane.setHgap(10);
-                gridPane.setVgap(10);
-                gridPane.setPadding(new Insets(10));
+                setText(null);
+                VBox cell = new VBox(10);
+                cell.setAlignment(Pos.CENTER_LEFT);
+
+                HBox bookInfo = new HBox(10);
+                bookInfo.setAlignment(Pos.CENTER_LEFT);
+
+                ImageView bookImage = new ImageView();
+                bookImage.setImage(new Image("file:" + book.getImagePath()));
+                bookImage.setFitHeight(100);
+                bookImage.setFitWidth(70);
+
+                VBox bookDetails = new VBox(5);
+                bookDetails.setAlignment(Pos.CENTER_LEFT);
 
                 Label titleLabel = new Label(book.getTitle());
-                titleLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #333333;");
+                titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;");
                 Label authorLabel = new Label("by " + book.getAuthor());
-                Label priceLabel = new Label("$" + book.getPrice());
+                authorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #555555;");
                 Label isbnLabel = new Label("ISBN: " + book.getIsbn());
+                isbnLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+                Label priceLabel = new Label("$" + book.getPrice());
+                priceLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-                File file = new File(book.getImagePath());
-                ImageView imageView = new ImageView(new Image(file.toURI().toString()));
-                imageView.setFitHeight(50);
-                imageView.setFitWidth(50);
+                bookDetails.getChildren().addAll(titleLabel, authorLabel, isbnLabel, priceLabel);
+                bookInfo.getChildren().addAll(bookImage, bookDetails);
 
-                gridPane.add(imageView, 0, 0, 1, 3);
-                gridPane.add(titleLabel, 1, 0);
-                gridPane.add(authorLabel, 1, 1);
-                gridPane.add(priceLabel, 1, 2);
-                gridPane.add(isbnLabel, 1, 3);
-
-                setGraphic(gridPane);
+                cell.getChildren().add(bookInfo);
+                setGraphic(cell);
             }
         }
     }

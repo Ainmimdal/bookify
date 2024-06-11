@@ -7,15 +7,15 @@ import javafx.collections.ObservableList;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class BookData {
     private static List<Book> books = new ArrayList<>();
 
     static {
-        books.add(new Book("Effective Java", "Joshua Bloch", "Programming", 45.00, "9780134685991", "src/images/effective_java.jpg"));
-        books.add(new Book("Clean Code", "Robert C. Martin", "Programming", 40.00, "9780132350884", "src/images/clean_code.jpg"));
-        books.add(new Book("The Pragmatic Programmer", "Andrew Hunt", "Programming", 50.00, "9780201616224", "src/images/pragmatic_programmer.jpg"));
-        books.add(new Book("Harry Potter and the Philosopher's Stone", "J.K. Rowling", "Fantasy", 30.00, "9780747532699", "src/images/harry_potter.jpg"));
-        books.add(new Book("The Lord of the Rings", "J.R.R. Tolkien", "Fantasy", 35.00, "9780261102385", "src/images/lord_of_the_rings.jpg"));
+        books.add(new Book("Effective Java", "Joshua Bloch", "Programming",  45.00, "978-0134685991","/images/effective_java.jpg"));
+        books.add(new Book("Clean Code", "Robert C. Martin", "Programming", 40.00, "978-0132350884", "/images/clean_code.jpg"));
+        books.add(new Book("The Hobbit", "J.R.R. Tolkien", "Fantasy",  25.00,"978-0547928227", "/images/the_hobbit.jpg"));
+        books.add(new Book("A Complete Study Guide to Biology", "Gabrielle I. Edwards", "Biology", 56.00, "978-1506281322","/images/biology.jpg"));
     }
 
     public static List<Book> getBooks() {
@@ -23,26 +23,34 @@ public class BookData {
     }
 
     public static List<Book> getBooksByCategory(String category) {
-        List<Book> categoryBooks = new ArrayList<>();
+        List<Book> filteredBooks = new ArrayList<>();
         for (Book book : books) {
             if (book.getCategory().equalsIgnoreCase(category)) {
-                categoryBooks.add(book);
+                filteredBooks.add(book);
             }
         }
-        return categoryBooks;
+        return filteredBooks;
     }
 
     public static List<Book> getBooksByAuthor(String author) {
-        List<Book> authorBooks = new ArrayList<>();
+        List<Book> filteredBooks = new ArrayList<>();
         for (Book book : books) {
             if (book.getAuthor().equalsIgnoreCase(author)) {
-                authorBooks.add(book);
+                filteredBooks.add(book);
             }
         }
-        return authorBooks;
+        return filteredBooks;
     }
 
-    public static void addBook(Book book) {
-        books.add(book);
+    public static List<Book> searchBooks(String keyword) {
+        List<Book> filteredBooks = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
+                    book.getAuthor().toLowerCase().contains(keyword.toLowerCase()) ||
+                    book.getIsbn().contains(keyword)) {
+                filteredBooks.add(book);
+            }
+        }
+        return filteredBooks;
     }
 }
