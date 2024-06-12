@@ -25,6 +25,8 @@ public class BookListView {
     private VBox view;
     private ObservableList<Book> books;
     private BookListController controller;
+    private ComboBox<String> categoryComboBox;
+    private ComboBox<String> authorComboBox;
 
     public BookListView() {
         books = FXCollections.observableArrayList();
@@ -33,6 +35,7 @@ public class BookListView {
 
     public void setController(BookListController controller) {
         this.controller = controller;
+        initializeDropdowns();
     }
 
     private void createView() {
@@ -41,21 +44,28 @@ public class BookListView {
         view.setPadding(new Insets(20));
         view.setBackground(new Background(new BackgroundFill(Color.rgb(240, 240, 240), CornerRadii.EMPTY, Insets.EMPTY)));
 
+        // Create logout button separately
+        Button logoutButton = new Button("Logout");
+        logoutButton.setStyle("-fx-background-color: #FF0000; -fx-text-fill: white;");
+        logoutButton.setOnAction(e -> controller.logout());
+
+        // Create header with title centered
         Label titleLabel = new Label("Book Catalog");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        HBox titleBox = new HBox(titleLabel);
+        titleBox.setAlignment(Pos.CENTER);
+
+        VBox headerWithLogout = new VBox(logoutButton, titleBox);
+        headerWithLogout.setAlignment(Pos.TOP_LEFT);
 
         TextField searchField = new TextField();
         searchField.setPromptText("Search books...");
         searchField.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
 
-        ComboBox<String> categoryComboBox = new ComboBox<>();
-        categoryComboBox.getItems().addAll("All", "Programming", "Fantasy");
-        categoryComboBox.setValue("All");
+        categoryComboBox = new ComboBox<>();
         categoryComboBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
 
-        ComboBox<String> authorComboBox = new ComboBox<>();
-        authorComboBox.getItems().addAll("All", "Joshua Bloch", "Robert C. Martin", "J.R.R. Tolkien");
-        authorComboBox.setValue("All");
+        authorComboBox = new ComboBox<>();
         authorComboBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
 
         HBox filterBox = new HBox(10, searchField, categoryComboBox, authorComboBox);
@@ -74,7 +84,7 @@ public class BookListView {
         HBox buttonsBox = new HBox(10, addToCartButton, viewCartButton, viewOrdersButton);
         buttonsBox.setAlignment(Pos.CENTER);
 
-        view.getChildren().addAll(titleLabel, filterBox, bookListView, buttonsBox);
+        view.getChildren().addAll(headerWithLogout, filterBox, bookListView, buttonsBox);
 
         // Button actions
         searchField.setOnAction(e -> controller.searchBooks(searchField.getText()));
@@ -88,6 +98,21 @@ public class BookListView {
         });
         viewCartButton.setOnAction(e -> controller.viewCart());
         viewOrdersButton.setOnAction(e -> controller.viewOrders());
+    }
+
+    private void initializeDropdowns() {
+        // Initialize category dropdown
+        List<String> categories = controller.loadCategories();
+        categoryComboBox.getItems().clear();
+        categoryComboBox.getItems().addAll(categories);
+        categoryComboBox.setValue("All");
+
+        // Initialize author dropdown
+        List<String> authors = controller.loadAuthors();
+        authorComboBox.getItems().clear();
+        authorComboBox.getItems().addAll("All");
+        authorComboBox.getItems().addAll(authors);
+        authorComboBox.setValue("All");
     }
 
     public VBox getView() {
@@ -114,7 +139,7 @@ public class BookListView {
                 bookInfo.setAlignment(Pos.CENTER_LEFT);
 
                 ImageView bookImage = new ImageView();
-                bookImage.setImage(new Image("file:" + book.getImagePath()));
+                bookImage.setImage(new Image(getClass().getResource(book.getImagePath()).toString()));
                 bookImage.setFitHeight(100);
                 bookImage.setFitWidth(70);
 

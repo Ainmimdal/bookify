@@ -46,16 +46,16 @@ public class LoginView {
         Button loginButton = new Button("Login");
         loginButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         Button registerButton = new Button("Register");
-        loginButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+        registerButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
 
         grid.add(usernameLabel, 0, 0);
         grid.add(usernameField, 1, 0);
         grid.add(passwordLabel, 0, 1);
         grid.add(passwordField, 1, 1);
         grid.add(loginButton, 1, 2);
-        grid.add(registerButton, 1,2);
+        grid.add(registerButton, 1, 3);
 
-        HBox buttonBox = new HBox(loginButton);
+        HBox buttonBox = new HBox(loginButton, registerButton);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(10);
 
@@ -73,7 +73,7 @@ public class LoginView {
             loginController.handleRegister(username, password);
         });
 
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 1280, 720);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Bookify - Login");
         primaryStage.show();

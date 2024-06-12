@@ -23,6 +23,7 @@ public class CartView {
 
     public CartView(CartController controller) {
         this.controller = controller;
+        this.controller.setView(this);
         this.cartItems = new ArrayList<>();
     }
 
@@ -33,26 +34,36 @@ public class CartView {
     public void show() {
         Stage stage = new Stage();
         stage.setTitle("Shopping Cart");
-        stage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(10);
-        root.setAlignment(Pos.CENTER);
+        root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(20));
         root.setBackground(new Background(new BackgroundFill(Color.rgb(240, 240, 240), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Label titleLabel = new Label("Shopping Cart");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setAlignment(Pos.CENTER);
+        VBox cartItemsBox = new VBox(10);
+        cartItemsBox.setAlignment(Pos.CENTER_LEFT);
+        cartItemsBox.setPadding(new Insets(10));
+        cartItemsBox.setStyle("-fx-background-color: #F9F9F9; -fx-border-color: #DDDDDD; -fx-border-radius: 5px;");
 
-        int row = 0;
         for (Book book : cartItems) {
+            HBox bookInfoBox = new HBox(10);
+            bookInfoBox.setAlignment(Pos.CENTER_LEFT);
+
             Label bookLabel = new Label(book.getTitle() + " by " + book.getAuthor() + " - $" + book.getPrice());
             bookLabel.setStyle("-fx-text-fill: #333333;");
-            gridPane.addRow(row++, bookLabel);
+
+            Button removeButton = new Button("Remove");
+            removeButton.setStyle("-fx-background-color: #FF0000; -fx-text-fill: white;");
+            removeButton.setOnAction(e -> {
+                cartItems.remove(book);
+                refreshCartItems(cartItemsBox);
+            });
+
+            bookInfoBox.getChildren().addAll(bookLabel, removeButton);
+            cartItemsBox.getChildren().add(bookInfoBox);
         }
 
         Button placeOrderButton = new Button("Place Order");
@@ -61,7 +72,7 @@ public class CartView {
         closeButton.setStyle("-fx-background-color: #FF0000; -fx-text-fill: white;");
 
         HBox buttonsBox = new HBox(10, placeOrderButton, closeButton);
-        buttonsBox.setAlignment(Pos.CENTER);
+        buttonsBox.setAlignment(Pos.BOTTOM_CENTER);
 
         placeOrderButton.setOnAction(e -> {
             controller.checkout();
@@ -70,16 +81,36 @@ public class CartView {
 
         closeButton.setOnAction(e -> stage.close());
 
-        root.getChildren().addAll(titleLabel, gridPane, buttonsBox);
+        root.getChildren().addAll(titleLabel, cartItemsBox, buttonsBox);
 
-        Scene scene = new Scene(root, 400, 400);
+        Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         stage.showAndWait();
     }
 
     public void setCartItems(List<Book> cartItems) {
         this.cartItems = cartItems;
+    }
 
+    private void refreshCartItems(VBox cartItemsBox) {
+        cartItemsBox.getChildren().clear();
+        for (Book book : cartItems) {
+            HBox bookInfoBox = new HBox(10);
+            bookInfoBox.setAlignment(Pos.CENTER_LEFT);
+
+            Label bookLabel = new Label(book.getTitle() + " by " + book.getAuthor() + " - $" + book.getPrice());
+            bookLabel.setStyle("-fx-text-fill: #333333;");
+
+            Button removeButton = new Button("Remove");
+            removeButton.setStyle("-fx-background-color: #FF0000; -fx-text-fill: white;");
+            removeButton.setOnAction(e -> {
+                cartItems.remove(book);
+                refreshCartItems(cartItemsBox);
+            });
+
+            bookInfoBox.getChildren().addAll(bookLabel, removeButton);
+            cartItemsBox.getChildren().add(bookInfoBox);
+        }
     }
 
     public void showConfirmation(String message) {
@@ -90,4 +121,3 @@ public class CartView {
         alert.showAndWait();
     }
 }
-

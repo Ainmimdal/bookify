@@ -3,6 +3,7 @@ package com.mimdal.bookify.views;
 import com.mimdal.bookify.controllers.BookListController;
 import com.mimdal.bookify.models.Book;
 import com.mimdal.bookify.models.Order;
+import com.mimdal.bookify.models.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -17,7 +18,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.List;
-
 
 public class OrderListView {
     private List<Order> orders;
@@ -34,23 +34,36 @@ public class OrderListView {
         stage.initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox(10);
-        root.setAlignment(Pos.CENTER);
+        root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(20));
         root.setBackground(new Background(new BackgroundFill(Color.rgb(240, 240, 240), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Label titleLabel = new Label("Order History");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setAlignment(Pos.CENTER);
+        VBox ordersBox = new VBox(10);
+        ordersBox.setAlignment(Pos.CENTER);
+        ordersBox.setPadding(new Insets(10));
+        ordersBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 5px;");
 
-        int row = 0;
         for (Order order : orders) {
+            VBox orderBox = new VBox(5);
+            orderBox.setAlignment(Pos.CENTER_LEFT);
+            orderBox.setPadding(new Insets(10));
+            orderBox.setStyle("-fx-background-color: #F9F9F9; -fx-border-color: #DDDDDD; -fx-border-radius: 5px;");
+
             Label orderLabel = new Label("Order " + order.getId() + " - Total: $" + order.getTotalAmount());
-            orderLabel.setStyle("-fx-text-fill: #333333;");
-            gridPane.addRow(row++, orderLabel);
+            orderLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+
+            VBox booksBox = new VBox(5);
+            for (Book book : order.getBooks()) {
+                Label bookLabel = new Label(book.getTitle() + " by " + book.getAuthor() + " - $" + book.getPrice());
+                bookLabel.setStyle("-fx-text-fill: #555555;");
+                booksBox.getChildren().add(bookLabel);
+            }
+
+            orderBox.getChildren().addAll(orderLabel, booksBox);
+            ordersBox.getChildren().add(orderBox);
         }
 
         Button closeButton = new Button("Close");
@@ -58,9 +71,9 @@ public class OrderListView {
 
         closeButton.setOnAction(e -> stage.close());
 
-        root.getChildren().addAll(titleLabel, gridPane, closeButton);
+        root.getChildren().addAll(titleLabel, ordersBox, closeButton);
 
-        Scene scene = new Scene(root, 400, 400);
+        Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         stage.showAndWait();
     }

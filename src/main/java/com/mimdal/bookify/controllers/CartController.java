@@ -19,37 +19,49 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 public class CartController {
     private CartView view;
-    private ObservableList<Book> cartItems;
+    private List<Book> cartItems;
 
     public CartController() {
-
-        this.cartItems = FXCollections.observableArrayList();
-        //view.setCartItems(cartItems);
+        this.cartItems = new ArrayList<>();
     }
-     public void setView(CartView view){
-        this.view= view;
-     }
+
+    public void setView(CartView view) {
+        this.view = view;
+        this.view.setCartItems(cartItems);
+    }
 
     public void addToCart(Book book) {
         cartItems.add(book);
-        view.setCartItems(cartItems);
+        if (view != null) {
+            view.setCartItems(cartItems);
+        }
     }
 
     public void checkout() {
-        // Handle checkout logic
-        // For demonstration, just clear the cart and show confirmation
+        // Create a copy of the cart items
+        List<Book> orderedBooks = new ArrayList<>(cartItems);
+
+        // Clear the cart
         cartItems.clear();
-       // view.setCartItems(cartItems);
-        Order order = new Order(UserUtility.currentUser,cartItems);
+        if (view != null) {
+            view.setCartItems(cartItems);
+        }
+
+        // Create and add the order
+        Order order = new Order(UserUtility.currentUser, orderedBooks);
         OrderData.addOrder(order);
-        //view.showConfirmation("Your order has been placed successfully!");
+
+        // Show confirmation
+        if (view != null) {
+            view.showConfirmation("Your order has been placed successfully!");
+        }
     }
 
     public CartView getView() {
         return view;
     }
 }
-
